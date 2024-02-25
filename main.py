@@ -5,8 +5,11 @@ import errno
 import os
 import threading
 
+shutdown_server = False
+
 
 def handle_client(connectionSocket, addr):
+    global shutdown_server
     try:
         # Recieve clients request
         message = connectionSocket.recv(2048).decode()
@@ -19,6 +22,7 @@ def handle_client(connectionSocket, addr):
             filename[1:]
         ):
             print(f"Stop requested, terminating")
+            shutdown_server = True  # Signal to server to shut down
             connectionSocket.close()
             return
 
@@ -102,9 +106,12 @@ except Exception as e:
     sys.exit(1)
 
 try:
-    print("Ready to serve...")
-    while True:
+    while not shutdown_server:
+        print("Ready to serve...")
         connectionSocket, addr = serverSocket.accept()
+        if shutdown_server:
+            connectionSocket.close()
+            break
         clientThread = threading.Thread(
             target=handle_client, args=(connectionSocket, addr)
         )
