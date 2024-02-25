@@ -55,6 +55,17 @@ try:
             message = ""
 except UnicodeDecodeError as e:
     print(f"UnicodeDecodeError: {e}")
+    try:
+        message += newPart.decode("latin-1")
+    except UnicodeDecodeError:
+        # If this also fails print error (Trying to send all of rockyou.txt to include non standard characters)
+        # Keep getting a broken pipe error from the server.
+        # Everything else works how its supposed to
+        print("Error: Unable to decode message with supplied encodings")
+        sys.exit(1)
+    if "\n" in message:
+        print(message, end="")
+        message = ""
 except OSError as e:
     print("Error sending GET request: " + str(e))
     clientSocket.close()

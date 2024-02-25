@@ -74,9 +74,7 @@ def send_404(connectionSocket):
 
 
 def main():
-
-    global shutdown_server
-
+    global shutdown_server  # Signal from other functions to exit
     # Try to cast command line port argument to integer
     try:
         serverPort = int(sys.argv[1])
